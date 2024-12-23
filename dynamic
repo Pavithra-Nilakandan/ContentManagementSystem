@@ -1,0 +1,196 @@
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
+
+public class ContentManagementSystem {
+
+    // Content class representing individual content
+    public static class Content {
+        private int id;
+        private String title;
+        private String body;
+        private Date dateCreated;
+
+        public Content(int id, String title, String body) {
+            this.id = id;
+            this.title = title;
+            this.body = body;
+            this.dateCreated = new Date();
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getBody() {
+            return body;
+        }
+
+        public Date getDateCreated() {
+            return dateCreated;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public void setBody(String body) {
+            this.body = body;
+        }
+
+        @Override
+        public String toString() {
+            return "Content [id=" + id + ", title=" + title + ", body=" + body + ", dateCreated=" + dateCreated + "]";
+        }
+    }
+
+    // ContentManager class managing the content operations
+    public static class ContentManager {
+        private List<Content> contentList;
+        private int contentCounter;
+
+        public ContentManager() {
+            contentList = new ArrayList<>();
+            contentCounter = 1; // Start content ID from 1
+        }
+
+        // Create new content
+        public Content createContent(String title, String body) {
+            Content newContent = new Content(contentCounter++, title, body);
+            contentList.add(newContent);
+            return newContent;
+        }
+
+        // Retrieve all content
+        public List<Content> getAllContent() {
+            return contentList;
+        }
+
+        // Update content by ID
+        public boolean updateContent(int id, String newTitle, String newBody) {
+            for (Content content : contentList) {
+                if (content.getId() == id) {
+                    content.setTitle(newTitle);
+                    content.setBody(newBody);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Delete content by ID
+        public boolean deleteContent(int id) {
+            return contentList.removeIf(content -> content.getId() == id);
+        }
+
+        // Find content by ID
+        public Content getContentById(int id) {
+            for (Content content : contentList) {
+                if (content.getId() == id) {
+                    return content;
+                }
+            }
+            return null;
+        }
+    }
+
+    // Main class to run the Content Management System
+    public static void main(String[] args) {
+        ContentManager contentManager = new ContentManager();
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            displayMenu();
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline
+
+            switch (choice) {
+                case 1:
+                    createContent(contentManager, scanner);
+                    break;
+                case 2:
+                    viewAllContent(contentManager);
+                    break;
+                case 3:
+                    updateContent(contentManager, scanner);
+                    break;
+                case 4:
+                    deleteContent(contentManager, scanner);
+                    break;
+                case 5:
+                    System.out.println("Exiting CMS. Goodbye!");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private static void displayMenu() {
+        System.out.println("\n--- Content Management System ---");
+        System.out.println("1. Create Content");
+        System.out.println("2. View All Content");
+        System.out.println("3. Update Content");
+        System.out.println("4. Delete Content");
+        System.out.println("5. Exit");
+        System.out.print("Enter your choice: ");
+    }
+
+    private static void createContent(ContentManager contentManager, Scanner scanner) {
+        System.out.print("Enter title: ");
+        String title = scanner.nextLine();
+        System.out.print("Enter body: ");
+        String body = scanner.nextLine();
+
+        Content content = contentManager.createContent(title, body);
+        System.out.println("Content created successfully! ID: " + content.getId());
+    }
+
+    private static void viewAllContent(ContentManager contentManager) {
+        List<Content> contentList = contentManager.getAllContent();
+        if (contentList.isEmpty()) {
+            System.out.println("No content available.");
+        } else {
+            for (Content content : contentList) {
+                System.out.println(content);
+            }
+        }
+    }
+
+    private static void updateContent(ContentManager contentManager, Scanner scanner) {
+        System.out.print("Enter content ID to update: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline
+        Content content = contentManager.getContentById(id);
+
+        if (content != null) {
+            System.out.print("Enter new title: ");
+            String newTitle = scanner.nextLine();
+            System.out.print("Enter new body: ");
+            String newBody = scanner.nextLine();
+
+            contentManager.updateContent(id, newTitle, newBody);
+            System.out.println("Content updated successfully!");
+        } else {
+            System.out.println("Content with ID " + id + " not found.");
+        }
+    }
+
+    private static void deleteContent(ContentManager contentManager, Scanner scanner) {
+        System.out.print("Enter content ID to delete: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline
+
+        if (contentManager.deleteContent(id)) {
+            System.out.println("Content deleted successfully!");
+        } else {
+            System.out.println("Content with ID " + id + " not found.");
+        }
+    }
+}
